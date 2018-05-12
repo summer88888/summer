@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="刷牙洗脸敲代码 | 这里是 ZGX 张冠雄 的个人博客。">
+    <meta name="keywords"  content="张冠雄, ZGX, 张冠雄的博客, 个人博客, 互联网, 前端, 旅游">
+    <meta name="theme-color" content="#000000">
+    
+    <title>jQuery基本知识 - 张冠雄的博客 | ZGX Blog</title>
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/pwa/manifest.json">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/favicon.ico">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="http://www.bearcoco.com/2016/10/06/jquery-basic/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Hux Delete, sad but pending in China
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/
+    css'>
+    -->
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- ga & ba script hoook -->
+    <script></script>
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">ZGX Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/aboutme/"> about</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/archives/">Archives</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from 
+     * $toggle/$collapse will break global delegation.
+     * 
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.  
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-js-version.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/post-bg-js-version.jpg')
+    }
+
+    
+</style>
+<header class="intro-header" >
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#jQuery" title="jQuery">jQuery</a>
+                        
+                    </div>
+                    <h1>jQuery基本知识</h1>
+                    
+                    
+                    <h2 class="subheading"></h2>
+                    
+                    <span class="meta">Posted by zgx on October 6, 2016</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+				<h2 id="jquery的入口函数">jQuery的入口函数</h2>
+
+<div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">方式一：</span>
+<span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+    <span class="c1">// 功能代码</span>
+<span class="p">});</span>
+<span class="err">方式二：</span>
+<span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+    <span class="c1">// 功能代码</span>
+<span class="p">});</span>
+</code></pre></div></div>
+<h2 id="jquery入口函数与js入口函数的区别">jQuery入口函数与js入口函数的区别</h2>
+
+<p>js入口函数指的是：window.onload = function() {}; 
+区别：</p>
+<ul>
+  <li>1、书写个数不同<br />
+Js入口函数只能出现一次，出现多次会存在事件覆盖的问题。<br />
+jQuery的入口函数，可以出现任意多次，并不会存在事件覆盖问题。<br /></li>
+  <li>2、执行时机不同<br />
+Js入口函数是在所有的文件资源加载完成后，才执行。<br />
+这些文件资源包括：页面文档、外部的js文件、外部的css文件、图片等。<br />
+jQuery的入口函数，是在文档加载完成后，就执行。文档加载完成指的是：DOM树加载完成后，就可以操作DOM了，
+不用等到所有的外部资源都加载完成。</li>
+  <li>文档加载的顺序：从上往下，边解析边执行。</li>
+</ul>
+
+<h2 id="jquery的符号">jQuery的$符号</h2>
+
+<ul>
+  <li>jQuery里面的$符号实际上是一个函数
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// jQuery里面使用$的方式</span>
+<span class="nx">$</span><span class="p">(</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="p">});</span> <span class="c1">// 调用入口函数</span>
+<span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span> <span class="p">});</span>                 <span class="c1">// 调用入口函数</span>
+<span class="nx">$</span><span class="p">(</span><span class="s2">"#btnShow"</span><span class="p">)</span>                     <span class="c1">// 获取id属性为btnShow的元素</span>
+<span class="nx">$</span><span class="p">(</span><span class="s2">"div"</span><span class="p">)</span>                          <span class="c1">// 获取所有的div元素</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>jQuery里面的$函数，根据传入参数的不同，进行不同的调用，实现不同的功能。返回的是jQuery对象。<br />
+jQuery这个js库，除了$之外，还提供了另外一个函数：jQuery<br />
+jQuery函数跟$函数的关系：jQuery === $   =&gt; true<br /></p>
+
+<h2 id="jquery对象和dom对象的相互转换">jQuery对象和DOM对象的相互转换</h2>
+<ul>
+  <li>DOM对象
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">btn</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"btnShow"</span><span class="p">);</span> <span class="c1">// btn就是一个DOM对象</span>
+</code></pre></div>    </div>
+  </li>
+  <li>jQuery对象
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">$btn</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">"#btnShow"</span><span class="p">);</span> <span class="c1">// $btn就是一个jQuery对象</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Query对象是包装的DOM对象的集合，即：包装集</li>
+  <li>DOM对象转换成jQuery对象：
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">$btn</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="nx">btn</span><span class="p">);</span> <span class="c1">// 此时就把DOM对象btn转换成了jQuery对象$btn</span>
+</code></pre></div>    </div>
+  </li>
+  <li>jQuery对象转换成DOM对象：
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// 方式一</span>
+<span class="kd">var</span> <span class="nx">btn1</span> <span class="o">=</span> <span class="nx">$btn</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="c1">// 此时就把jQuery对象$btn转换成了DOM对象btn1 （推荐使用此方式）</span>
+<span class="c1">// 方式二</span>
+<span class="kd">var</span> <span class="nx">btn2</span> <span class="o">=</span> <span class="nx">$btn</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="c1">// 此时就把jQuery对象$btn转换成了DOM对象btn2</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="jquery选择器">jQuery选择器</h2>
+<p>常用的选择器汇总</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*               $("*")              所有元素
+#id             $("#lastname")      id="lastname" 的元素
+.class          $(".intro")         所有 class="intro" 的元素
+element         $("p")              所有 &lt;p&gt; 元素
+.class.class    $(".intro.demo")    所有 class 具有 "intro" 且 "demo" 的元素
+s1,s2,s3        $("th,td,.intro")   所有带有匹配选择的元素
+:even           $("tr:even")        所有偶数 &lt;tr&gt; 元素
+:odd            $("tr:odd")         所有奇数 &lt;tr&gt; 元素
+:first          $("p:first")        第一个 &lt;p&gt; 元素
+:last           $("p:last")         最后一个 &lt;p&gt; 元素
+:eq(index)      $("ul li:eq(3)")    列表中的第四个元素（index 从 0 开始）
+:gt(index)      $("ul li:gt(3)")    列出 index 大于 3 的元素 greater than
+:lt(index)      $("ul li:lt(3)")    列出 index 小于 3 的元素 less than
+:not(selector)  $("input:not(:empty)")  所有不为空的 input 元素
+
+:header         $(":header")        所有标题元素 &lt;h1&gt; - &lt;h6&gt;
+:animated       $(":animated")      所有正在执行动画的元素
+:contains(text)     $(":contains('W3School')")  包含指定字符串的所有元素
+:empty              $(":empty")                 无子（元素）节点的所有元素
+:hidden             $("p:hidden")               所有隐藏的 &lt;p&gt; 元素
+:visible            $("table:visible")          所有可见的表格
+[attribute]         $("[href]")         所有带有 href 属性的元素
+[attribute=value]   $("[href='#']")     所有 href 属性的值等于 "#" 的元素
+[attribute!=value]  $("[href!='#']")    所有 href 属性的值不等于 "#" 的元素
+[attribute$=value]  $("[href$='.jpg']") 所有 href 属性的值包含以 ".jpg" 结尾的元素
+:input              $(":input")         所有 &lt;input&gt; 元素
+:text               $(":text")          所有 type="text" 的 &lt;input&gt; 元素
+:password           $(":password")      所有 type="password" 的 &lt;input&gt; 元素
+:radio              $(":radio")         所有 type="radio" 的 &lt;input&gt; 元素
+:checkbox           $(":checkbox")      所有 type="checkbox" 的 &lt;input&gt; 元素
+:submit             $(":submit")        所有 type="submit" 的 &lt;input&gt; 元素
+:reset              $(":reset")         所有 type="reset" 的 &lt;input&gt; 元素
+:button             $(":button")        所有 按钮元素（&lt;button&gt;&lt;/button&gt; 或者 input="button"）
+:image              $(":image")         所有 type="image" 的 &lt;input&gt; 元素
+:file               $(":file")          所有 type="file" 的 &lt;input&gt; 元素
+:enabled            $(":enabled")       所有激活的 input 元素
+:disabled           $(":disabled")      所有禁用的 input 元素
+:selected           $(":selected")      所有被选取的 input 元素
+:checked            $(":checked")       所有被选中的 input 元素
+</code></pre></div></div>
+
+<h2 id="jquery选择方法">jQuery选择方法</h2>
+<ul>
+  <li>获取父级元素
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$(selector).parent();     //获取直接父级
+$(selector).parents('p'); //获取所有父级元素直到html   
+</code></pre></div>    </div>
+  </li>
+  <li>获取子代和后代的元素
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$(selector).children();   //获取直接子元素
+$(selector).find("span"); //获取所有的后代元素  find方法 可能用的多。
+</code></pre></div>    </div>
+  </li>
+  <li>获取同级的元素
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$(selector).siblings()    //所有的兄弟节点
+$(selector).next()        //下一个兄弟节点
+$(selector).nextAll()     //后面的所有节点
+$(selector).prev()        //前面一个的兄弟节点
+$(selector).prevAll()     //前面的所有的兄弟节点
+</code></pre></div>    </div>
+  </li>
+  <li>过滤方法
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$("p").eq(1);           //取第n个元素
+$("div p").last();        //取最后一个元素
+$("div p").first();       //取第一个元素
+$("p").filter(".intro");  //过滤，选择所有p标签带有 .intro类
+$("p").not(".intro");     //去除，跟上面的filetr正好相反
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="jquery常用dom操作">jQuery常用DOM操作</h2>
+
+<p><strong>基本样式属性操作</strong></p>
+<ul>
+  <li>设置样式属性操作
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>设置单个样式：
+// 第一个参数表示：样式属性名称
+// 第二个参数表示：样式属性值
+$(selector).css("color", "red");
+设置多个样式：（也可以设置单个）
+// 参数为 {}（对象）
+$(selector).css({"color": "red", "font-size": "30px"});
+</code></pre></div>    </div>
+  </li>
+  <li>获取样式属性操作：
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// 参数表示要获取的 样式属性名称
+var fs = $(selector).css("font-size");
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>类样式操作</strong></p>
+
+<ul>
+  <li>添加类样式：
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>作用：为指定元素添加类className
+$(selector).addClass("liItem");
+</code></pre></div>    </div>
+  </li>
+  <li>移除类样式：
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>作用：为指定元素移除类 className
+$(selector).removeClass("liItem");
+$(selector).removeClass(); 不指定参数，表示移除被选中元素的所有类
+</code></pre></div>    </div>
+  </li>
+  <li>判断有没有类样式：
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>作用：判断指定元素是否包含类 className
+var hasC = $(selector).hasClass("liItem");
+此时，会返回true或false
+</code></pre></div>    </div>
+  </li>
+  <li>切换类样式：
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>作用：为指定元素切换类 className，该元素有类则移除，没有指定类则添加。
+$(selector).toggleClass("liItem");
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>链式编程 和 隐式迭代</strong></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$("li").parent("ul").parent("div").siblings("div").children("div").html("内容");
+链式编程原理：return this;
+通常情况下，只有设置操作才能把链式编程延续下去。因为获取操作的时候，会返回获取到的相应的值，无法返回 this。
+end(); // 结束当前链最近的一次过滤操作，并且返回匹配元素之前的一次状态。
+隐式迭代
+// 设置操作
+$("div").css("color", "red");
+// 获取操作
+$("div").css("color"); // 返回第一个元素的值
+隐式迭代的意思是：在方法的内部会为匹配到的所有元素进行循环遍历，执行相应的方法；
+而不用我们再进行循环，简化我们的操作，方便我们调用。
+</code></pre></div></div>
+
+<!-- zanshang -->
+<div>
+
+      
+</div>
+
+        <div>
+     
+	  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+	    <div>喝杯咖啡</div>
+	    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById(&#39;QR&#39;); if (qr.style.display === &#39;none&#39;) {qr.style.display=&#39;block&#39;;} else {qr.style.display=&#39;none&#39;}">
+	      <span>赞</span>
+	    </button>
+	    <div id="QR" style="display: none;">
+	      
+	        <div id="wechat" style="display: inline-block">
+	          <a href="/img/wechat.jpg" class="fancybox" rel="group"><img id="wechat_qr" src="/img/wechat.jpg" alt="WeChat Pay"></a>
+	          <p>微信打赏</p>
+	        </div>
+	      
+	      
+          </div>
+  </div>
+  
+
+
+      
+    </div>
+<div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+var cloudTieConfig = {
+  url: document.location.href, 
+  sourceId: "",
+  productKey: "836b7ac87ba74c0b8e742592d15cb0bb",
+  target: "cloud-tie-wrapper"
+};
+var yunManualLoad = true;
+Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vcGMvbGl2ZXNjcmlwdC5odG1s", true);
+</script>
+                <hr>
+
+                
+
+
+                <ul class="pager">
+                    
+                    
+                    <li class="next">
+                        <a href="/2016/11/27/standard/" data-toggle="tooltip" data-placement="top" title="代码规范">
+                        Next<br>
+                        <span>代码规范</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                
+
+                
+
+            </div>  
+
+    <!-- Side Catalog Container -->
+        
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+        
+
+    <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+        				
+                            
+        				
+                            
+                				<a href="/tags/#前端开发" title="前端开发" rel="9">
+                                    前端开发
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#JavaScript" title="JavaScript" rel="4">
+                                    JavaScript
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#生活" title="生活" rel="4">
+                                    生活
+                                </a>
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#个人总结" title="个人总结" rel="2">
+                                    个人总结
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+                				<a href="/tags/#博客" title="博客" rel="2">
+                                    博客
+                                </a>
+                            
+        				
+                            
+                				<a href="/tags/#jekyll" title="jekyll" rel="2">
+                                    jekyll
+                                </a>
+                            
+        				
+                            
+        				
+                            
+        				
+                            
+        				
+        			</div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://beforweb.com/front-end">前端-为网而生</a></li>
+                    
+                        <li><a href="http://www.bypanda.cn">Dragon Blog</a></li>
+                    
+                        <li><a href="http://xxssww0258.coding.me/my-Blog/docs/">John Blog</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+ 					 <!--
+                    
+                    <li>
+                        <a href="https://twitter.com/bypanda">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    -->
+
+                    <!-- add lofter,ins by teng, add target = "_blank" to <a> by Hux -->
+                    
+                    
+                    
+
+                     
+                    <li>
+                        <a href="https://twitter.com/bypanda">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                     <!-- add lofter,ins by teng, add target = "_blank" to <a> by Hux -->
+                    
+
+                       
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    
+                    <li>
+                        <a target="_blank" href="http://weibo.com/bypanda">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+
+                    
+                    <li>
+                        <a target="_blank" href="https://www.facebook.com/bypanda">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/bearcoco">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                  </ul>
+                  <p class="copyright text-muted">
+                      Copyright &copy; ZGX Blog 2018
+                      <br>
+                      Theme by <a href="http://www.bearcoco.com">ZGX</a> | 坚持为贵
+
+                  </p>
+                  <p class="copyright text-muted">
+                      <a href="http://www.miitbeian.gov.cn/">粤ICP备16100151号</a>
+
+                  </p>
+              </div>
+          </div>
+      </div>
+
+
+  </footer>
+  <!-- jQuery -->
+  <script src="/js/jquery.min.js "></script>
+
+  <!-- Bootstrap Core JavaScript -->
+  <script src="/js/bootstrap.min.js "></script>
+
+  <!-- Custom Theme JavaScript -->
+  <script src="/js/hux-blog.min.js "></script>
+
+
+  <!-- async load function -->
+  <script>
+      function async(u, c) {
+        var d = document, t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+        s.parentNode.insertBefore(o, s);
+      }
+  </script>
+
+  <!--
+       Because of the native support for backtick-style fenced code blocks
+       right within the Markdown is landed in Github Pages,
+       From V1.6, There is no need for Highlight.js,
+       so Huxblog drops it officially.
+       - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+       - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+       - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+  -->
+  <!--
+      <script>
+          async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+              hljs.initHighlightingOnLoad();
+          })
+      </script>
+      <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+  -->
+
+
+  <!-- jquery.tagcloud.js -->
+  <script>
+      // only load tagcloud.js in tag.html
+      if($('#tag_cloud').length !== 0){
+          async('/js/jquery.tagcloud.js',function(){
+              $.fn.tagcloud.defaults = {
+                  //size: {start: 1, end: 1, unit: 'em'},
+                  color: {start: '#bbbbee', end: '#0085a1'},
+              };
+              $('#tag_cloud a').tagcloud();
+          })
+      }
+  </script>
+
+  <!--fastClick.js -->
+  <script>
+      async("http://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+          var $nav = document.querySelector("nav");
+          if($nav) FastClick.attach($nav);
+      })
+  </script>
+
+
+  <!-- Google Analytics -->
+  
+  <script>
+      // dynamic User by Hux
+      var _gaId = 'UA-79793350-1';
+      var _gaDomain = 'www.bearcoco.com';
+      // Originial
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', _gaId, _gaDomain);
+      ga('send', 'pageview');
+  </script>
+  
+
+
+  <!-- Baidu Tongji -->
+  
+  <script>
+      // dynamic User by Hux
+      var _baId = 'de1ce458db68d7a3d74998a4cc6e6c4f';
+      // Originial
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "//hm.baidu.com/hm.js?" + _baId;
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+  </script>
+  
+
+
+
+  <!-- Side Catalog -->
+  
+  <script type="text/javascript">
+      function generateCatalog (selector) {
+          var P = $('div.post-container'),a,n,t,l,i,c;
+          a = P.find('h1,h2,h3,h4,h5,h6');
+          a.each(function () {
+              n = $(this).prop('tagName').toLowerCase();
+              i = "#"+$(this).prop('id');
+              t = $(this).text();
+              c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+              l = $('<li class="'+n+'_nav"></li>').append(c);
+              $(selector).append(l);
+          });
+          return true;
+      }
+      generateCatalog(".catalog-body");
+      // toggle side catalog
+      $(".catalog-toggle").click((function(e){
+          e.preventDefault();
+          $('.side-catalog').toggleClass("fold")
+      }))
+      /*
+       * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+       * Fork by Hux to support padding
+       */
+      async("/js/jquery.nav.js", function () {
+          $('.catalog-body').onePageNav({
+              currentClass: "active",
+              changeHash: !1,
+              easing: "swing",
+              filter: "",
+              scrollSpeed: 700,
+              scrollOffset: 0,
+              scrollThreshold: .2,
+              begin: null,
+              end: null,
+              scrollChange: null,
+              padding: 80
+          });
+      });
+  </script>
+  
+
+  <!-- Highlight.js -->
+  <script>
+      async("//cdn.bootcss.com/highlight.js/9.4.0/highlight.min.js",function(){
+          hljs.initHighlightingOnLoad();
+      })
+  </script>
+
+<link href="//cdn.bootcss.com/highlight.js/9.4.0/styles/github.min.css" rel="stylesheet">
+
+
+
+  <!-- search -->
+<div class="search-tool" style="position: fixed; top: 0px ; bottom: 0px; left: 0px; right:  0px;
+      opacity: 0.95; background-color: #111111; z-index: 9999; display: none;">
+    <input type="text" class="form-control search-content" id="search-content" style="position: fixed; top: 60px"
+           placeholder="文章标题 日期 标签"
+           >
+
+    <div style="position: fixed; top: 16px; right: 16px;">
+        <img src="/search/img/cb-close.png"  id="close-btn"/>
+    </div>
+</div>
+
+<div style="position: fixed; right: 16px; bottom: 20px;">
+    <img src="/search/img/cb-search.png"  id="search-btn"  title="双击ctrl试一下"/>
+</div>
+
+<link rel="stylesheet" href="/search/css/cb-search.css">
+
+<script src="/search/js/bootstrap3-typeahead.min.js"></script>
+<script src="/search/js/cb-search.js"></script>
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
